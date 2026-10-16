@@ -1,0 +1,104 @@
+{
+  "name": "Smoke test — webhook → /v1/turn",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook/smoke",
+        "sendErrors": true,
+        "responseMode": "onReceived"
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 300],
+      "id": "webhook-smoke",
+      "name": "Webhook /webhook/smoke"
+    },
+    {
+      "parameters": {
+        "jsCode": "const r = { wa_id: 'smoke-demo', text: $json?.text || 'olá' };\nreturn [{ json: r }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [300, 300],
+      "id": "code-smoke",
+      "name": "Prepara corpo"
+    },
+    {
+      "parameters": {
+        "url": "{{BOT_SERVICE_URL}}/v1/turn",
+        "method": "POST",
+        "body": "=JSON.parse(JSON.stringify($json))",
+        "returnResponse": true
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [600, 300],
+      "id": "http-bot-smoke",
+      "name": "Chama /v1/turn"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { received: $json } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [900, 300],
+      "id": "code-smoke-out",
+      "name": "Formata resposta"
+    },
+    {
+      "parameters": {
+        "responses": {
+          "send-webhook": {
+            "responseBody": "={{ $json }}",
+            "responseCode": 200
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.response",
+      "typeVersion": 1,
+      "position": [1200, 300],
+      "id": "resp-smoke",
+      "name": "Responde smoke"
+    }
+  ],
+  "connections": {
+    "webhook-smoke": {
+      "main": [
+        [
+          "code-smoke"
+        ]
+      ]
+    },
+    "code-smoke": {
+      "main": [
+        [
+          "http-bot-smoke"
+        ]
+      ]
+    },
+    "http-bot-smoke": {
+      "main": [
+        [
+          "code-smoke-out"
+        ]
+      ]
+    },
+    "code-smoke-out": {
+      "main": [
+        [
+          "resp-smoke"
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateLibrary": {
+      "icon": "fa-solid fa-bolt",
+      "category": "Test"
+    }
+  }
+}

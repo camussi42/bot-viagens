@@ -1,0 +1,19 @@
+[project]
+name = "bot-viagens"
+version = "0.1.0"
+description = "Núcleo do bot de WhatsApp para cotação de pacotes Infotravel"
+requires-python = ">=3.11"
+
+# Núcleo (testes) = 100% stdlib, sem dependências.
+# Dependências abaixo são SÓ para rodar o serviço HTTP + Postgres.
+dependencies = [
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.29",
+  "psycopg[binary]>=3.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-httpx", "freezegun"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
